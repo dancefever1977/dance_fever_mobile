@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "36219395872",
+    "project_id": "dance-fever-a5f33",
+    "storage_bucket": "dance-fever-a5f33.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:36219395872:android:31d01428df8c1cffbc8145",
+        "android_client_info": {
+          "package_name": "com.example.dance_fever"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "36219395872-7l99o799dup43e5k4mu80jgun570uooj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.dance_fever",
+            "certificate_hash": "4188b9718186d70d2d5078627b228692e4ebdcd1"
+          }
+        },
+        {
+          "client_id": "36219395872-22vun5nkjsisho0pcvar42knhkbtnvrp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtpN20f3BcCIYNaOEJPFHdNHs9h5xQR9o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "36219395872-22vun5nkjsisho0pcvar42knhkbtnvrp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "36219395872-72vlb7dkud25q218pinjm7ea1hckj1pe.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.danceFever"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

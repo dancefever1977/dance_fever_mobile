@@ -1,0 +1,19 @@
+// import 'package:dance_fever/features/auth/domain/entities/user_entity.dart';
+
+// abstract class AuthState {}
+
+// class AuthInitialState extends AuthState {}
+
+// class AuthLoadingState extends AuthState {}
+
+// class AuthenticatedState extends AuthState {
+//   AuthenticatedState(this.user);
+//   final UserEntity user;
+// }
+
+// class UnauthenticatedState extends AuthState {}
+
+// class AuthErrorState extends AuthState {
+//   AuthErrorState(this.message);
+//   final String message;
+// }

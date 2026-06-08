@@ -1,0 +1,34 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+class AuthService {
+  Future<UserCredential> signInWithGoogle() async {
+    // 1. Ensure initialization
+    final GoogleSignIn googleSignIn = GoogleSignIn.instance;
+
+    // 2. Authentication (Identity)
+    // Triggers the account picker / Credential Manager sheet
+    final GoogleSignInAccount googleUser = await googleSignIn.authenticate();
+
+    // 3. Authorization (Permissions)
+    // Request scopes to retrieve the Access Token
+    final List<String> scopes = <String>['email', 'profile'];
+    final GoogleSignInClientAuthorization clientAuth = await googleUser.authorizationClient.authorizeScopes(scopes);
+
+    print('Google Sign-In successful: $googleUser');
+    print('Access Token: ${clientAuth.accessToken}');
+
+    // 4. Create Firebase Credential
+    final OAuthCredential credential = GoogleAuthProvider.credential(
+      idToken: googleUser.authentication.idToken,
+      accessToken: clientAuth.accessToken,
+    );
+
+    // 5. Sign in to Firebase
+    final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+
+    print('Firebase Sign-In successful: $userCredential');
+
+    return userCredential;
+  }
+}

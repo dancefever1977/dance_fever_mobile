@@ -53,6 +53,7 @@ class AppRouter {
 
 class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(Stream stream) {
+    print("GoRouterRefreshStream: ${stream.first}");
     notifyListeners();
     stream.asBroadcastStream().listen((_) => notifyListeners());
   }

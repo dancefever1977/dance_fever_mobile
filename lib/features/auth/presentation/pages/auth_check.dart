@@ -17,7 +17,7 @@ class AuthChecker extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateChangesProvider);
 
-    print("AuthChecker: $authState");
+    print("User: ${authState.value}");
 
     return authState.when(
       data: (user) {

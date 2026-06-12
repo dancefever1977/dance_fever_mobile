@@ -7,9 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AuthNotifier extends AsyncNotifier<void> {
   @override
-  FutureOr<void> build() {
-    print("this is AuthNotifier build for FutureOr<void>");
-  }
+  FutureOr<void> build() {}
 
   Future<void> loginWithGoogle() async {
     state = const AsyncValue.loading();

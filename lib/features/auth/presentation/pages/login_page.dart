@@ -275,6 +275,8 @@ class _LoginPageState extends ConsumerState<LoginPage> with TickerProviderStateM
     return AnimatedBuilder(
       animation: _shimmerController,
       builder: (context, child) {
+        final isLoading = ref.watch(authControllerProvider).isLoading;
+
         return GestureDetector(
           onTap: () {
             ref.read(authControllerProvider.notifier).loginWithGoogle();
@@ -293,45 +295,51 @@ class _LoginPageState extends ConsumerState<LoginPage> with TickerProviderStateM
               ],
             ),
             clipBehavior: Clip.antiAlias,
-            child: Stack(
-              children: [
-                // Shimmer sweep
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: _ShimmerPainter(
-                      progress: _shimmerController.value,
-                      color: AppColors.electricPurple.withValues(alpha: 0.12),
+            child: isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.electricPurple,
                     ),
-                  ),
-                ),
-                // Button content
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  )
+                : Stack(
                     children: [
-                      // Google "G" logo
-                      SizedBox(
-                        width: 20,
-                        height: 20,
+                      // Shimmer sweep
+                      Positioned.fill(
                         child: CustomPaint(
-                          painter: _GoogleLogoPainter(),
+                          painter: _ShimmerPainter(
+                            progress: _shimmerController.value,
+                            color: AppColors.electricPurple.withValues(alpha: 0.12),
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        'CONTINUE WITH GOOGLE',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.7,
-                          color: AppColors.surfaceContainerLowest,
+                      // Button content
+                      Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Google "G" logo
+                            SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CustomPaint(
+                                painter: _GoogleLogoPainter(),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Text(
+                              'CONTINUE WITH GOOGLE',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.7,
+                                color: AppColors.surfaceContainerLowest,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
           ),
         );
       },

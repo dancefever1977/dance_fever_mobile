@@ -1,69 +1,30 @@
-import 'package:dance_fever/core/error/failures.dart';
-import 'package:dance_fever/features/auth/data/datasources/auth_local_datasource.dart';
+import 'package:dance_fever/core/error/result.dart';
 import 'package:dance_fever/features/auth/data/datasources/auth_remote_datasource.dart';
-import 'package:dance_fever/features/auth/domain/entities/user_entity.dart';
 import 'package:dance_fever/features/auth/domain/repository/auth_repository.dart';
-import 'package:fpdart/fpdart.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AuthRepositoryImpl extends AuthRepository {
-  final AuthRemoteDataSource authRemoteDataSource;
-  final AuthLocalDataSource authLocalDataSource;
+  final AuthRemoteDataSource remoteDataSource;
 
-  AuthRepositoryImpl({
-    required this.authRemoteDataSource,
-    required this.authLocalDataSource,
-  });
+  AuthRepositoryImpl(this.remoteDataSource);
 
   @override
-  Future<Either<Failure, UserEntity?>> getCurrentUser() async {
-    try {
-      final user = await authLocalDataSource.getCachedUser();
-      return Right(user);
-    } catch (e) {
-      return Left(CacheFailure());
-    }
-  }
-
-  @override
-  Future<Either<Failure, bool>> isAuthenticated() async {
-    try {
-      final user = await authLocalDataSource.getCachedUser();
-      return Right(user != null);
-    } catch (e) {
-      return Left(CacheFailure());
-    }
-  }
-
-  @override
-  Future<Either<Failure, UserEntity>> signInWithApple() async {
-    // TODO: implement signInWithApple
+  Future<Result> loginWithApple() {
+    // TODO: implement loginWithApple
     throw UnimplementedError();
   }
 
   @override
-  Future<Either<Failure, UserEntity>> signInWithGoogle() async {
-    try {
-      final user = await authRemoteDataSource.signInWithGoogle();
-      await authLocalDataSource.cacheUser(user);
-      return Right(user);
-    } catch (e) {
-      return Left(ServerFailure());
-    }
+  Future<Result> loginWithGoogle() {
+    return remoteDataSource.loginWithGoogle();
   }
 
   @override
-  Future<Either<Failure, void>> signOut() async {
-    try {
-      await authRemoteDataSource.signOut();
-      final didClear = await authLocalDataSource.clearCachedUser();
-
-      if (didClear) {
-        return const Right(null);
-      } else {
-        return Left(CacheFailure());
-      }
-    } catch (e) {
-      return Left(ServerFailure());
-    }
+  Future<Result> logout() {
+    return remoteDataSource.logout();
   }
 }
+
+final authRepositoryImpl = Provider(
+  (ref) => AuthRepositoryImpl(ref.watch(authRemoteDataSourceProvider)),
+);

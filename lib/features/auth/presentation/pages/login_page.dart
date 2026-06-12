@@ -1,20 +1,19 @@
 import 'dart:math';
 
-import 'package:dance_fever/core/theme/app_colors.dart';
-import 'package:dance_fever/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:dance_fever/features/auth/presentation/bloc/auth_event.dart';
-import 'package:dance_fever/features/auth/presentation/bloc/auth_state.dart';
+import 'package:dance_fever/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LoginPage extends StatefulWidget {
+import '../../../../core/theme/app_colors.dart';
+
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
+class _LoginPageState extends ConsumerState<LoginPage> with TickerProviderStateMixin {
   // ── Animation controllers ──
   late final AnimationController _fadeController;
   late final Animation<double> _fadeAnimation;
@@ -72,12 +71,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     _shimmerController.dispose();
     _pulseController.dispose();
     super.dispose();
-  }
-
-  void _handleLogin() {
-    context.read<AuthBloc>().add(
-      AuthLoginWithGoogleRequested(),
-    );
   }
 
   @override
@@ -254,110 +247,38 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   // Auth section — Google button, Apple button, terms text
   // ────────────────────────────────────────────────────────────────
   Widget _buildAuthSection(BuildContext context) {
-    return BlocConsumer<AuthBloc, AuthState>(
-      listener: (context, state) {},
-      builder: (context, state) {
-        final isLoading = state is AuthLoadingState;
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 380),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Google button with shimmer
+          _buildGoogleButton(),
 
-        return ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 380),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Google button with shimmer
-              _buildGoogleButton(isLoading),
-              // AnimatedBuilder(
-              //   animation: _shimmerController,
-              //   builder: (context, child) {
-              //     return GestureDetector(
-              //       onTap: isLoading ? null : _handleLogin,
-              //       child: Container(
-              //         height: 56,
-              //         decoration: BoxDecoration(
-              //           color: AppColors.ghostWhite,
-              //           borderRadius: BorderRadius.circular(12),
-              //           boxShadow: [
-              //             BoxShadow(
-              //               color: AppColors.electricPurple.withValues(alpha: 0.0),
-              //               blurRadius: 20,
-              //               spreadRadius: 0,
-              //             ),
-              //           ],
-              //         ),
-              //         clipBehavior: Clip.antiAlias,
-              //         child: isLoading
-              //             ? const Center(
-              //                 child: CircularProgressIndicator(
-              //                   color: AppColors.electricPurple,
-              //                 ),
-              //               )
-              //             : Stack(
-              //                 children: [
-              //                   // Shimmer sweep
-              //                   Positioned.fill(
-              //                     child: CustomPaint(
-              //                       painter: _ShimmerPainter(
-              //                         progress: _shimmerController.value,
-              //                         color: AppColors.electricPurple.withValues(alpha: 0.12),
-              //                       ),
-              //                     ),
-              //                   ),
-              //                   // Button content
-              //                   Center(
-              //                     child: Row(
-              //                       mainAxisAlignment: MainAxisAlignment.center,
-              //                       children: [
-              //                         // Google "G" logo
-              //                         SizedBox(
-              //                           width: 20,
-              //                           height: 20,
-              //                           child: CustomPaint(
-              //                             painter: _GoogleLogoPainter(),
-              //                           ),
-              //                         ),
-              //                         const SizedBox(width: 12),
-              //                         const Text(
-              //                           'CONTINUE WITH GOOGLE',
-              //                           style: TextStyle(
-              //                             fontSize: 14,
-              //                             fontWeight: FontWeight.w700,
-              //                             letterSpacing: 0.7,
-              //                             color: AppColors.surfaceContainerLowest,
-              //                           ),
-              //                         ),
-              //                       ],
-              //                     ),
-              //                   ),
-              //                 ],
-              //               ),
-              //       ),
-              //     );
-              //   },
-              // ),
-              const SizedBox(height: 12),
+          const SizedBox(height: 12),
 
-              // Apple button
-              _buildAppleButton(),
-              const SizedBox(height: 20),
+          // Apple button
+          _buildAppleButton(),
+          const SizedBox(height: 20),
 
-              // Terms & Privacy
-              // _buildTermsText(),
-            ],
-          ),
-        );
-      },
+          // Terms & Privacy
+          // _buildTermsText(),
+        ],
+      ),
     );
   }
 
   // ────────────────────────────────────────────────────────────────
   // Google sign-in button — white with shimmer effect
   // ────────────────────────────────────────────────────────────────
-  Widget _buildGoogleButton(bool isLoading) {
+  Widget _buildGoogleButton() {
     return AnimatedBuilder(
       animation: _shimmerController,
       builder: (context, child) {
         return GestureDetector(
-          onTap: isLoading ? null : _handleLogin,
+          onTap: () {
+            ref.read(authControllerProvider.notifier).loginWithGoogle();
+          },
           child: Container(
             height: 56,
             decoration: BoxDecoration(
@@ -372,51 +293,45 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               ],
             ),
             clipBehavior: Clip.antiAlias,
-            child: isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.electricPurple,
+            child: Stack(
+              children: [
+                // Shimmer sweep
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: _ShimmerPainter(
+                      progress: _shimmerController.value,
+                      color: AppColors.electricPurple.withValues(alpha: 0.12),
                     ),
-                  )
-                : Stack(
+                  ),
+                ),
+                // Button content
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Shimmer sweep
-                      Positioned.fill(
+                      // Google "G" logo
+                      SizedBox(
+                        width: 20,
+                        height: 20,
                         child: CustomPaint(
-                          painter: _ShimmerPainter(
-                            progress: _shimmerController.value,
-                            color: AppColors.electricPurple.withValues(alpha: 0.12),
-                          ),
+                          painter: _GoogleLogoPainter(),
                         ),
                       ),
-                      // Button content
-                      Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // Google "G" logo
-                            SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CustomPaint(
-                                painter: _GoogleLogoPainter(),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            const Text(
-                              'CONTINUE WITH GOOGLE',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.7,
-                                color: AppColors.surfaceContainerLowest,
-                              ),
-                            ),
-                          ],
+                      const SizedBox(width: 12),
+                      const Text(
+                        'CONTINUE WITH GOOGLE',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.7,
+                          color: AppColors.surfaceContainerLowest,
                         ),
                       ),
                     ],
                   ),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -467,73 +382,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       ),
     );
   }
-
-  // ────────────────────────────────────────────────────────────────
-  // Terms & Privacy footer
-  // ────────────────────────────────────────────────────────────────
-  // Widget _buildTermsText() {
-  //   return Column(
-  //     children: [
-  //       const Text(
-  //         'BY CONTINUING, YOU AGREE TO THE',
-  //         textAlign: TextAlign.center,
-  //         style: TextStyle(
-  //           fontSize: 10,
-  //           fontWeight: FontWeight.w500,
-  //           letterSpacing: 1.5,
-  //           color: AppColors.onSurfaceVariant,
-  //         ),
-  //       ),
-  //       const SizedBox(height: 4),
-  //       Row(
-  //         mainAxisAlignment: MainAxisAlignment.center,
-  //         children: [
-  //           GestureDetector(
-  //             onTap: () {
-  //               // TODO: Open Terms
-  //             },
-  //             child: Text(
-  //               'TERMS OF SERVICE',
-  //               style: TextStyle(
-  //                 fontSize: 10,
-  //                 fontWeight: FontWeight.w600,
-  //                 letterSpacing: 1.5,
-  //                 color: AppColors.vibrantMagenta,
-  //                 decoration: TextDecoration.underline,
-  //                 decorationColor: AppColors.vibrantMagenta.withValues(alpha: 0.3),
-  //               ),
-  //             ),
-  //           ),
-  //           const Text(
-  //             '  &  ',
-  //             style: TextStyle(
-  //               fontSize: 10,
-  //               fontWeight: FontWeight.w500,
-  //               letterSpacing: 1.5,
-  //               color: AppColors.onSurfaceVariant,
-  //             ),
-  //           ),
-  //           GestureDetector(
-  //             onTap: () {
-  //               // TODO: Open Privacy Policy
-  //             },
-  //             child: Text(
-  //               'PRIVACY POLICY',
-  //               style: TextStyle(
-  //                 fontSize: 10,
-  //                 fontWeight: FontWeight.w600,
-  //                 letterSpacing: 1.5,
-  //                 color: AppColors.vibrantMagenta,
-  //                 decoration: TextDecoration.underline,
-  //                 decorationColor: AppColors.vibrantMagenta.withValues(alpha: 0.3),
-  //               ),
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ],
-  //   );
-  // }
 }
 
 // ══════════════════════════════════════════════════════════════════

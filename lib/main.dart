@@ -1,14 +1,12 @@
-import 'package:dance_fever/core/config/firebase_options.dart';
-import 'package:dance_fever/core/router/router.dart';
-import 'package:dance_fever/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:dance_fever/core/theme/app_colors.dart';
+import 'package:dance_fever/features/auth/presentation/pages/auth_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import 'core/config/injection_container.dart' as di;
-import 'core/theme/app_colors.dart';
+import 'core/config/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,9 +17,7 @@ void main() async {
 
   await GoogleSignIn.instance.initialize();
 
-  await di.init();
-
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -38,28 +34,18 @@ class MyApp extends StatelessWidget {
         // Optional: Forces a transparent status bar background on Android
         statusBarColor: Colors.transparent,
       ),
-      child: BlocProvider(
-        create: (_) => di.sl<AuthBloc>(),
-        child: Builder(
-          builder: (context) {
-            final authBloc = context.read<AuthBloc>();
-            final appRouter = AppRouter(authBloc: authBloc);
-
-            return MaterialApp.router(
-              title: 'Auth Clean App',
-              routerConfig: appRouter.router,
-              debugShowCheckedModeBanner: false,
-              theme: ThemeData(
-                scaffoldBackgroundColor: AppColors.background,
-                canvasColor: AppColors.background,
-                colorScheme: const ColorScheme.dark(
-                  primary: AppColors.primary,
-                  surface: AppColors.surface,
-                ),
-              ),
-            );
-          },
+      child: MaterialApp(
+        title: 'Auth Clean App',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          scaffoldBackgroundColor: AppColors.background,
+          canvasColor: AppColors.background,
+          colorScheme: const ColorScheme.dark(
+            primary: AppColors.primary,
+            surface: AppColors.surface,
+          ),
         ),
+        home: const AuthChecker(),
       ),
     );
   }

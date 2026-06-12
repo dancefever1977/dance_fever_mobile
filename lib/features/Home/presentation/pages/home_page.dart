@@ -1,9 +1,9 @@
-import 'package:dance_fever/core/models/news_article.dart';
-import 'package:dance_fever/core/theme/app_colors.dart';
-import 'package:dance_fever/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:dance_fever/features/auth/presentation/bloc/auth_event.dart';
+import 'package:dance_fever/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../../core/models/news_article.dart';
+import '../../../../core/theme/app_colors.dart';
 
 enum _Categories {
   All,
@@ -14,14 +14,14 @@ enum _Categories {
   Religion,
 }
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   // ── State ──
   int _selectedCategoryIndex = 0;
   int _bottomNavIndex = 0;
@@ -52,6 +52,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // final authState = ref.watch(authControllerProvider);
+    // final isLoading = authState.isLoading;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -137,13 +140,16 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(width: 16),
           // Profile Icon
           IconButton(
-            onPressed: () {
-              context.read<AuthBloc>().add(AuthLogoutRequested());
-            },
-            icon: const Icon(
-              Icons.person_outline_rounded,
-              color: AppColors.onSurface,
-              size: 26,
+            onPressed: () {},
+            icon: IconButton(
+              icon: const Icon(
+                Icons.person_outline_rounded,
+                color: AppColors.onSurface,
+                size: 26,
+              ),
+              onPressed: () {
+                ref.read(authControllerProvider.notifier).signOut();
+              },
             ),
           ),
         ],
@@ -184,95 +190,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  // ────────────────────────────────────────────────────────────────
-  // Featured News (Horizontal List)
-  // ────────────────────────────────────────────────────────────────
-  Widget _buildFeaturedNews() {
-    final featuredArticles = NewsArticle.sampleArticles.where((a) => a.isFeatured).toList();
-    // If not enough featured, just take the first two for demo purposes
-    final items = featuredArticles.isNotEmpty
-        ? featuredArticles
-        : NewsArticle.sampleArticles.take(2).toList();
-
-    return SizedBox(
-      height: 200,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          final article = items[index];
-          // Determine color based on index for the placeholder background
-          final isEven = index % 2 == 0;
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: _buildFeaturedCard(article, isEven),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildFeaturedCard(NewsArticle article, bool isEven) {
-    return Container(
-      width: 160, // Fixed width to match the square-ish look in the image
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        // Placeholder gradient since we don't have real images
-        gradient: LinearGradient(
-          colors: isEven
-              ? [const Color(0xFF1E3C72), const Color(0xFF2A5298)]
-              : [const Color(0xFF4B1248), const Color(0xFFF0C27B)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          // Gradient overlay for text readability at the bottom
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.transparent, Colors.black.withValues(alpha: 0.7)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: const [0.4, 1.0],
-                ),
-              ),
-            ),
-          ),
-          // Title text
-          Positioned(
-            left: 12,
-            right: 12,
-            bottom: 12,
-            child: Text(
-              article.title,
-              maxLines: 4,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                height: 1.3,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
